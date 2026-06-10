@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IR Good Work Dashboard</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,sans-serif;background:#F1EFE8;color:#2C2C2A}
+  .nav{background:#fff;border-bottom:1px solid #ddd;padding:0 20px;display:flex;align-items:center;gap:12px;height:52px;position:sticky;top:0;z-index:100}
+  .nav-logo{width:34px;height:34px;border-radius:8px;background:#185FA5;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
+  .nav-title{font-size:14px;font-weight:600;color:#2C2C2A}
+  .nav-sub{font-size:11px;color:#888}
+  .sp{flex:1}
+  .pill{background:#f5f5f5;border:1px solid #e0e0e0;border-radius:20px;padding:3px 10px;font-size:11px;color:#555;display:flex;align-items:center;gap:5px}
+  .ldot{width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;animation:blink 2s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .zone-tabbar{background:#fff;border-bottom:1px solid #ddd;padding:0 20px;overflow-x:auto;display:flex;scrollbar-width:none}
+  .zone-tabbar::-webkit-scrollbar{display:none}
+  .ztab{padding:10px 13px;font-size:12px;color:#666;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0}
+  .ztab:hover{color:#185FA5}
+  .ztab.active{color:#185FA5;border-bottom-color:#185FA5;font-weight:600}
+  .zdot{width:5px;height:5px;border-radius:50%;margin-top:2px}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 20px;background:#E6F1FB}
+  .sc{background:#fff;border:1px solid #ddd;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .si{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .slbl{font-size:11px;color:#888}
+  .sval{font-size:20px;font-weight:600}
+  .main{padding:16px 20px}
+  .zone-card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+  .zone-hero{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .zbadge{width:46px;height:46px;border-radius:10px;background:#185FA5;color:#E6F1FB;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+  .zname{font-size:15px;font-weight:600}
+  .zsub{font-size:12px;color:#888;margin-top:2px}
+  .htabbar{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid #eee;margin:0 -16px;padding:0 16px;scrollbar-width:none}
+  .htabbar::-webkit-scrollbar{display:none}
+  .htab{padding:8px 12px;font-size:11px;color:#666;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
+  .htab:hover{color:#185FA5}
+  .htab.active{font-weight:600;border-bottom-color:currentColor}
+  .op-panel{padding-top:14px}
+  .op-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+  .osc{background:#f8f8f8;border-radius:8px;padding:9px 11px}
+  .osl{font-size:11px;color:#888;margin-bottom:2px}
+  .osv{font-size:16px;font-weight:600}
+  .osv input{font-size:14px;border:none;border-bottom:1px solid #ccc;background:transparent;width:80px;outline:none;font-family:inherit}
+  .ost{font-size:10px;color:#aaa;margin-top:1px}
+  .cal-legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+  .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#666}
+  .legdot{width:10px;height:10px;border-radius:3px}
+  .cal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .mcard{background:#f8f8f8;border-radius:8px;padding:9px;border:1px solid #eee}
+  .mcard.has-uploads{background:#fff;border-color:#ddd}
+  .mhead{font-size:12px;font-weight:600;margin-bottom:3px;display:flex;justify-content:space-between}
+  .mbar{height:3px;background:#e0e0e0;border-radius:2px;margin-bottom:6px}
+  .mbar-fill{height:100%;border-radius:2px;background:#639922}
+  .daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .dh{font-size:9px;color:#aaa;text-align:center}
+  .dy{width:100%;aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+  .dy.uploaded{background:#C0DD97;color:#27500A}
+  .dy.missed{background:#F7C1C1;color:#791F1F}
+  .dy.future{background:#eee;color:#bbb;font-weight:400}
+  .dy.blank{background:transparent}
+  .upload-area{background:#f8f8f8;border:1px solid #ddd;border-radius:10px;padding:14px}
+  .upload-title{font-size:12px;font-weight:600;margin-bottom:10px}
+  .dropzone{border:2px dashed #ccc;border-radius:8px;padding:20px;text-align:center;cursor:pointer;margin-bottom:10px;transition:background .15s}
+  .dropzone:hover,.dropzone.drag{background:#E6F1FB}
+  .dropzone input[type=file]{display:none}
+  .upload-row{display:flex;gap:8px;margin-bottom:8px}
+  .upload-row select,.upload-row input{font-size:12px;padding:6px 8px;border:1px solid #ddd;border-radius:6px;background:#fff}
+  .upload-row select{flex:1}
+  .ubtn{width:100%;padding:8px;font-size:12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;color:#fff;display:flex;align-items:center;justify-content:center;gap:6px}
+  .gp-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#f8f8f8;cursor:pointer;font-size:12px;color:#555;width:100%;margin-bottom:10px}
+  .gp-btn:hover{border-color:#999;color:#333}
+  .feedback{display:none;margin-top:8px;padding:8px 10px;border-radius:8px;background:#EAF3DE;border:1px solid #C0DD97;font-size:12px;color:#27500A;align-items:center;gap:6px}
+  .feedback.show{display:flex}
+  .loading{text-align:center;padding:30px;color:#888;font-size:13px}
+  .error-msg{background:#FCEBEB;border:1px solid #F09595;border-radius:8px;padding:10px 14px;font-size:12px;color:#791F1F;margin-bottom:12px;display:none}
+  .error-msg.show{display:block}
+  .all-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+  .zcard-all{background:#fff;border:1px solid #ddd;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+  .zcard-all:hover{border-color:#185FA5}
+  .zcard-top{padding:9px 11px 6px;display:flex;align-items:flex-start;justify-content:space-between}
+  .zc-abbr{font-size:11px;font-weight:600;color:#888;letter-spacing:.05em}
+  .zc-name{font-size:12px;font-weight:600;line-height:1.2}
+  .zc-hq{font-size:11px;color:#aaa;margin-top:1px}
+  .zc-st{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+  .st-ex{background:#EAF3DE;color:#3B6D11}
+  .st-ac{background:#E6F1FB;color:#185FA5}
+  .st-pe{background:#FAEEDA;color:#854F0B}
+  .st-ns{background:#F1EFE8;color:#5F5E5A}
+  .zcard-pips{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px 11px 5px}
+  .pipp{height:3px;border-radius:2px;background:#eee}
+  .pipp.on{background:#185FA5}
+  .zcard-foot{padding:5px 11px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#aaa}
+  .tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+  .t-ex{background:#EAF3DE;color:#27500A}
+  .t-ac{background:#E6F1FB;color:#0C447C}
+  .t-pe{background:#FAEEDA;color:#633806}
+  .t-ns{background:#F1EFE8;color:#444}
+  .t-info{background:#E6F1FB;color:#0C447C}
+  .t-gray{background:#F1EFE8;color:#444}
+  @media(max-width:600px){
+    .stats-row{grid-template-columns:repeat(2,1fr)}
+    .op-stats{grid-template-columns:repeat(2,1fr)}
+    .cal-grid{grid-template-columns:repeat(2,1fr)}
+    .all-grid{grid-template-columns:repeat(2,1fr)}
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     NAVIGATION BAR
+═══════════════════════════════════════ -->
+<div class="nav">
+  <div class="nav-logo">IR</div>
+  <div>
+    <div class="nav-title">Indian Railways — Good Work Dashboard</div>
+    <div class="nav-sub">Railway Board · HQ Incharge</div>
+  </div>
+  <div class="sp"></div>
+  <div class="pill"><span class="ldot"></span> Live</div>
+  <div class="pill" id="nav-date">June 2025</div>
+  <div class="pill" id="nav-sync">Syncing…</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     ZONE TABS (17 zones + All)
+═══════════════════════════════════════ -->
+<div class="zone-tabbar" id="zone-tabbar"></div>
+
+<!-- ═══════════════════════════════════════
+     STATS STRIP
+═══════════════════════════════════════ -->
+<div class="stats-row">
+  <div class="sc"><div class="si" style="background:#E6F1FB;color:#185FA5">📷</div><div><div class="slbl">Total photos</div><div class="sval" id="s-total">—</div></div></div>
+  <div class="sc"><div class="si" style="background:#EAF3DE;color:#3B6D11">✓</div><div><div class="slbl">Zones active</div><div class="sval" id="s-active">—</div></div></div>
+  <div class="sc"><div class="si" style="background:#FAEEDA;color:#854F0B">⏱</div><div><div class="slbl">Pending</div><div class="sval" id="s-pending">—</div></div></div>
+  <div class="sc"><div class="si" style="background:#EEEDFE;color:#534AB7">★</div><div><div class="slbl">Excellent</div><div class="sval" id="s-excel">—</div></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MAIN VIEW
+═══════════════════════════════════════ -->
+<div class="main" id="main-view">
+  <div class="loading">Loading data from backend…</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────
+// CONFIGURATION — Edit these values
+// ─────────────────────────────────────────
+const CONFIG = {
+  // Your Google Apps Script Web App URL (after deployment)
+  // Leave as empty string to use mock data for testing
+  BACKEND_URL: 'https://script.google.com/macros/s/AKfycbyZFlPFDBOZ4Tpu3qK2Nu1wth_whs2Syndch-sK9Jjnd3rUn3Nv3S-uU09zrQy_nUIw2A/exec',
+
+  // Google Photos album base URL (optional)
+  GPHOTOS_BASE: 'https://photos.google.com/search/',
+
+  // Auto-refresh interval in milliseconds (30 seconds)
+  REFRESH_INTERVAL: 30000,
+
+  // Today's date for calendar colouring
+  TODAY: new Date()
+};
+
+// ─────────────────────────────────────────
+// STATIC DATA
+// ─────────────────────────────────────────
+const ZONES = [
+  {a:'CR',  n:'Central Railway',        hq:'Mumbai'},
+  {a:'ER',  n:'Eastern Railway',        hq:'Kolkata'},
+  {a:'ECoR',n:'East Coast Railway',     hq:'Bhubaneswar'},
+  {a:'ECR', n:'East Central Railway',   hq:'Hajipur'},
+  {a:'NCR', n:'North Central Railway',  hq:'Prayagraj'},
+  {a:'NER', n:'North Eastern Railway',  hq:'Gorakhpur'},
+  {a:'NFR', n:'NF Railway',            hq:'Maligaon'},
+  {a:'NR',  n:'Northern Railway',       hq:'New Delhi'},
+  {a:'NWR', n:'NW Railway',            hq:'Jaipur'},
+  {a:'SCR', n:'South Central Railway',  hq:'Secunderabad'},
+  {a:'SECR',n:'SE Central Railway',     hq:'Bilaspur'},
+  {a:'SER', n:'South Eastern Railway',  hq:'Kolkata'},
+  {a:'SR',  n:'Southern Railway',       hq:'Chennai'},
+  {a:'SWR', n:'SW Railway',            hq:'Hubli'},
+  {a:'WCR', n:'West Central Railway',   hq:'Jabalpur'},
+  {a:'WR',  n:'Western Railway',        hq:'Mumbai'},
+  {a:'KR',  n:'Konkan Railway',         hq:'Navi Mumbai'},
+];
+
+const HEADS = [
+  {id:'Meri_Saheli',               label:'Meri Saheli',                  color:'#185FA5', cat:'special'},
+  {id:'Train_Escort',              label:'Train Escort',                  color:'#0F6E56', cat:'special'},
+  {id:'Assist_Elderly',            label:'Assist Elderly Pax',            color:'#854F0B', cat:'special'},
+  {id:'Jeevan_Raksha',             label:'Jeevan Raksha',                 color:'#993356', cat:'special'},
+  {id:'Drone_Flying',              label:'Drone Flying Video',            color:'#534AB7', cat:'special'},
+  {id:'Station_Patrolling',        label:'Station Patrolling',            color:'#185FA5', cat:'security'},
+  {id:'Yard_Patrolling',           label:'Yard Patrolling',               color:'#3B6D11', cat:'security'},
+  {id:'Passenger_Security',        label:'Passenger Security',            color:'#854F0B', cat:'security'},
+  {id:'Crime_Prevention',          label:'Crime Prevention',              color:'#993356', cat:'security'},
+  {id:'Crime_Detection',           label:'Crime Detection',               color:'#534AB7', cat:'security'},
+  {id:'Rescue_Operation',          label:'Rescue Operation',              color:'#A32D2D', cat:'security'},
+  {id:'Railway_Property',          label:'Protection of Rly Property',    color:'#3B6D11', cat:'security'},
+  {id:'Crowd_Management',          label:'Crowd Management',              color:'#854F0B', cat:'security'},
+  {id:'Other_Security',            label:'Other Security Activities',     color:'#5F5E5A', cat:'security'},
+];
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+const MDAYS  = [31,28,31,30,31,30,31,31,30,31,30,31];
+const FD     = [3,6,6,2,4,0,2,5,1,3,6,1]; // first day offset for each month in 2025
+
+// ─────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────
+let state = {
+  activeZone: 'all',
+  activeHead: 'all',
+  data: {},       // { 'CR_Train_Escort': { dates: ['2025-06-01', ...] } }
+  lastSync: null
+};
+
+// ─────────────────────────────────────────
+// BACKEND / DATA LAYER
+// ─────────────────────────────────────────
+
+// Generate mock data when no backend is configured
+function generateMockData() {
+  const data = {};
+  function rng(seed) {
+    let x = seed + 1;
+    return () => { x = ((x * 1664525 + 1013904223) & 0xffffffff) >>> 0; return x / 0xffffffff; };
+  }
+  ZONES.forEach((z, zi) => {
+    HEADS.forEach((h, hi) => {
+      const key = `${z.a}_${h.id}`;
+      const r = rng(zi * 37 + hi * 13);
+      const dates = [];
+      MONTHS.forEach((_, mi) => {
+        const cnt = Math.floor(r() * 5);
+        for (let i = 0; i < cnt; i++) {
+          const d = Math.floor(r() * MDAYS[mi]) + 1;
+          const dateStr = `2025-${String(mi+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          if (!dates.includes(dateStr)) dates.push(dateStr);
+        }
+      });
+      data[key] = { dates, total: dates.length };
+    });
+  });
+  return data;
+}
+
+// Fetch data from Google Apps Script backend
+async function fetchFromBackend() {
+  if (!CONFIG.BACKEND_URL) {
+    // Use mock data
+    state.data = generateMockData();
+    document.getElementById('nav-sync').textContent = 'Mock data';
+    return;
+  }
+  try {
+    document.getElementById('nav-sync').textContent = 'Syncing…';
+    const res = await fetch(`${CONFIG.BACKEND_URL}?action=getData`, { mode: 'cors' });
+    const json = await res.json();
+    state.data = json.data || {};
+    state.lastSync = new Date();
+    document.getElementById('nav-sync').textContent = 'Live ✓';
+  } catch (err) {
+    console.error('Backend error:', err);
+    document.getElementById('nav-sync').textContent = 'Offline — using cache';
+    if (!Object.keys(state.data).length) state.data = generateMockData();
+  }
+}
+
+// Upload photo record to backend
+async function uploadToBackend(zone, head, dateStr, files) {
+  const key = `${zone}_${head}`;
+  if (!state.data[key]) state.data[key] = { dates: [], total: 0 };
+  if (!state.data[key].dates.includes(dateStr)) {
+    state.data[key].dates.push(dateStr);
+    state.data[key].total = state.data[key].dates.length;
+  }
+
+  if (!CONFIG.BACKEND_URL) {
+    console.log('Mock upload:', zone, head, dateStr, files?.length, 'files');
+    return { success: true };
+  }
+
+  const formData = new FormData();
+  formData.append('action', 'upload');
+  formData.append('zone', zone);
+  formData.append('head', head);
+  formData.append('date', dateStr);
+  if (files) Array.from(files).forEach(f => formData.append('files', f));
+
+  try {
+    const res = await fetch(CONFIG.BACKEND_URL, { method: 'POST', body: formData });
+    return await res.json();
+  } catch (err) {
+    console.error('Upload error:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+// ─────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────
+function getUploadDates(zone, head) {
+  return state.data[`${zone}_${head}`]?.dates || [];
+}
+
+function getZoneTotal(zone) {
+  return HEADS.reduce((sum, h) => sum + (state.data[`${zone}_${h.id}`]?.dates.length || 0), 0);
+}
+
+function isPast(mi, d) {
+  const t = CONFIG.TODAY;
+  if (mi < t.getMonth()) return true;
+  if (mi === t.getMonth() && d <= t.getDate()) return true;
+  return false;
+}
+
+function zoneStatus(zone) {
+  const t = getZoneTotal(zone);
+  if (t === 0) return 'ns';
+  if (t <= 5) return 'pe';
+  if (t <= 20) return 'ac';
+  return 'ex';
+}
+
+function statusLabel(s) { return {ex:'Excellent',ac:'Active',pe:'Pending',ns:'Not started'}[s]; }
+function statusTagClass(s) { return {ex:'t-ex',ac:'t-ac',pe:'t-pe',ns:'t-ns'}[s]; }
+function statusCircleClass(s) { return {ex:'st-ex',ac:'st-ac',pe:'st-pe',ns:'st-ns'}[s]; }
+function statusDotColor(s) { return {ex:'#639922',ac:'#185FA5',pe:'#BA7517',ns:'#B4B2A9'}[s]; }
+function headRating(p) { return p>=10?'Excellent':p>=4?'Active':p>0?'Pending':'Not started'; }
+function headRatingClass(p) { return p>=10?'t-ex':p>=4?'t-ac':p>0?'t-pe':'t-ns'; }
+
+// ─────────────────────────────────────────
+// RENDER ZONE TABS
+// ─────────────────────────────────────────
+function renderZoneTabs() {
+  const el = document.getElementById('zone-tabbar');
+  let html = `<div class="ztab ${state.activeZone==='all'?'active':''}" onclick="setZone('all')">
+    All zones</div>
+  <div style="width:1px;height:20px;background:#eee;align-self:center;flex-shrink:0;margin:0 4px"></div>`;
+  ZONES.forEach(z => {
+    const s = zoneStatus(z.a);
+    html += `<div class="ztab ${state.activeZone===z.a?'active':''}" onclick="setZone('${z.a}')">
+      <span style="font-size:11px;font-weight:600">${z.a}</span>
+      <span class="zdot" style="background:${statusDotColor(s)}"></span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ─────────────────────────────────────────
+// RENDER STATS ROW
+// ─────────────────────────────────────────
+function renderStats() {
+  const zones = state.activeZone === 'all' ? ZONES : [ZONES.find(z => z.a === state.activeZone)];
+  let photos = 0, active = 0, pending = 0, excel = 0;
+  zones.forEach(z => {
+    const t = getZoneTotal(z.a), s = zoneStatus(z.a);
+    photos += t;
+    if (s !== 'ns') active++;
+    if (s === 'pe') pending++;
+    if (s === 'ex') excel++;
+  });
+  document.getElementById('s-total').textContent = photos;
+  document.getElementById('s-active').textContent = state.activeZone === 'all' ? `${active}/17` : `${HEADS.filter(h=>getUploadDates(state.activeZone,h.id).length>0).length}/14`;
+  document.getElementById('s-pending').textContent = pending;
+  document.getElementById('s-excel').textContent = excel;
+}
+
+// ─────────────────────────────────────────
+// RENDER ALL-ZONES GRID
+// ─────────────────────────────────────────
+function renderAllZones() {
+  const el = document.getElementById('main-view');
+  el.innerHTML = `<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#444">
+    All 17 zones — click any zone to open its panel</div>
+  <div class="all-grid">${ZONES.map(z => {
+    const s = zoneStatus(z.a);
+    const pips = HEADS.slice(0,7).map(h => {
+      const cnt = getUploadDates(z.a, h.id).length;
+      return `<div class="pipp ${cnt>0?'on':''}"></div>`;
+    }).join('');
+    return `<div class="zcard-all" onclick="setZone('${z.a}')">
+      <div class="zcard-top">
+        <div>
+          <div class="zc-abbr">${z.a}</div>
+          <div class="zc-name">${z.n}</div>
+          <div class="zc-hq">${z.hq}</div>
+        </div>
+        <div class="zc-st ${statusCircleClass(s)}">${{ex:'★',ac:'✓',pe:'⏱',ns:'—'}[s]}</div>
+      </div>
+      <div class="zcard-pips">${pips}</div>
+      <div class="zcard-foot">
+        <span>${getZoneTotal(z.a)} photos</span>
+        <span class="tag ${statusTagClass(s)}">${statusLabel(s)}</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ─────────────────────────────────────────
+// RENDER CALENDAR FOR ONE HEAD
+// ─────────────────────────────────────────
+function renderCalendar(zone, head) {
+  const uploadedDates = new Set(getUploadDates(zone, head));
+  let greenDays = 0, redDays = 0;
+
+  const monthCards = MONTHS.map((mn, mi) => {
+    const dayHeaders = ['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => `<div class="dh">${d}</div>`).join('');
+    const blanks = Array(FD[mi]).fill(`<div class="dy blank"></div>`).join('');
+    let mGreen = 0, mTotal = 0;
+    const days = Array.from({length: MDAYS[mi]}, (_, i) => {
+      const d = i + 1;
+      const dateStr = `2025-${String(mi+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const past = isPast(mi, d);
+      const has = uploadedDates.has(dateStr);
+      if (past) { mTotal++; if (has) { mGreen++; greenDays++; } else { redDays++; } }
+      let cls = 'dy ';
+      if (!past) cls += 'future';
+      else if (has) cls += 'uploaded';
+      else cls += 'missed';
+      return `<div class="${cls}" title="${mn} ${d} — ${!past?'future':has?'uploaded':'no upload'}">${d}</div>`;
+    }).join('');
+    const pct = mTotal > 0 ? Math.round(mGreen / mTotal * 100) : 0;
+    return `<div class="mcard ${mGreen>0?'has-uploads':''}">
+      <div class="mhead"><span>${mn.slice(0,3)}</span><span style="font-weight:400;font-size:10px;color:#aaa">${mGreen}/${mTotal}</span></div>
+      <div class="mbar"><div class="mbar-fill" style="width:${pct}%"></div></div>
+      <div class="daygrid">${dayHeaders}${blanks}${days}</div>
+    </div>`;
+  }).join('');
+
+  return { html: monthCards, greenDays, redDays };
+}
+
+// ─────────────────────────────────────────
+// RENDER ZONE PANEL
+// ─────────────────────────────────────────
+function renderZonePanel(zoneAbbr) {
+  const z = ZONES.find(x => x.a === zoneAbbr);
+  const s = zoneStatus(zoneAbbr);
+  const el = document.getElementById('main-view');
+
+  const headTabsHtml = `<div class="htabbar">
+    <div class="htab ${state.activeHead==='all'?'active':''}" onclick="setHead('all')">All heads</div>
+    ${HEADS.map(h => `<div class="htab ${state.activeHead===h.id?'active':''}"
+      style="color:${state.activeHead===h.id?h.color:''}; border-bottom-color:${state.activeHead===h.id?h.color:'transparent'}"
+      onclick="setHead('${h.id}')">${h.label}</div>`).join('')}
+  </div>`;
+
+  const statsHtml = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div class="zbadge">${z.a}</div>
+    <div>
+      <div class="zname">${z.n}</div>
+      <div class="zsub">📍 ${z.hq} HQ</div>
+      <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+        <span class="tag ${statusTagClass(s)}">${statusLabel(s)}</span>
+        <span class="tag t-info">${HEADS.filter(h=>getUploadDates(zoneAbbr,h.id).length>0).length}/14 heads active</span>
+      </div>
+    </div>
+  </div>`;
+
+  let bodyHtml = '';
+
+  if (state.activeHead === 'all') {
+    const renderGroup = (heads, label) => `
+      <div style="font-size:12px;font-weight:600;margin:12px 0 8px;color:#444">${label}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin-bottom:12px">
+        ${heads.map(h => {
+          const cnt = getUploadDates(zoneAbbr, h.id).length;
+          const max = Math.max(...HEADS.map(hh => getUploadDates(zoneAbbr, hh.id).length), 1);
+          const pct = Math.round(cnt / max * 100);
+          return `<div onclick="setHead('${h.id}')" style="background:#fff;border:1px solid #ddd;border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s" onmouseover="this.style.borderColor='#185FA5'" onmouseout="this.style.borderColor='#ddd'">
+            <div style="padding:10px 12px 6px;display:flex;align-items:center;gap:8px">
+              <div style="width:30px;height:30px;border-radius:6px;background:${h.color}22;color:${h.color};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">●</div>
+              <div style="font-size:12px;font-weight:600;line-height:1.2">${h.label}</div>
+            </div>
+            <div style="padding:0 12px 6px;display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:18px;font-weight:700">${cnt}</span>
+              <span class="tag ${headRatingClass(cnt)}">${headRating(cnt)}</span>
+            </div>
+            <div style="height:3px;background:#eee;margin:0 12px 8px"><div style="height:100%;border-radius:2px;background:${h.color};width:${pct}%"></div></div>
+            <div style="padding:6px 12px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end">
+              <button style="font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid #ddd;background:transparent;color:#666;cursor:pointer" onclick="event.stopPropagation();setHead('${h.id}')">View ↗</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    bodyHtml = renderGroup(HEADS.filter(h=>h.cat==='special'), '⭐ Special initiative heads') +
+               renderGroup(HEADS.filter(h=>h.cat==='security'), '🛡 Security & patrol heads');
+  } else {
+    const head = HEADS.find(h => h.id === state.activeHead);
+    const { html: calHtml, greenDays, redDays } = renderCalendar(zoneAbbr, head.id);
+    const total = getUploadDates(zoneAbbr, head.id).length;
+    const coverage = Math.round(greenDays / Math.max(greenDays + redDays, 1) * 100);
+
+    bodyHtml = `
+    <div style="background:#fff;border:1px solid #ddd;border-radius:10px;padding:13px 15px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:38px;height:38px;border-radius:8px;background:${head.color}22;color:${head.color};display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">●</div>
+        <div>
+          <div style="font-size:14px;font-weight:600">${head.label} — ${z.n} (${z.a})</div>
+          <div style="font-size:12px;color:#888;margin-top:2px">📍 ${z.hq} HQ</div>
+        </div>
+        <span class="tag ${headRatingClass(total)}" style="margin-left:auto">${headRating(total)}</span>
+      </div>
+      <div class="op-stats">
+        <div class="osc"><div class="osl">Total photos</div>
+          <div class="osv"><input type="text" id="total-input-${zoneAbbr}-${head.id}" value="${total}" placeholder="Enter…"></div>
+          <div class="ost">tap to edit</div>
+        </div>
+        <div class="osc"><div class="osl">Days uploaded</div><div class="osv" style="color:#3B6D11">${greenDays}</div><div class="ost">green</div></div>
+        <div class="osc"><div class="osl">Days missed</div><div class="osv" style="color:#A32D2D">${redDays}</div><div class="ost">red</div></div>
+        <div class="osc"><div class="osl">Coverage</div><div class="osv">${coverage}%</div><div class="ost">upload rate</div></div>
+      </div>
+    </div>
+
+    <button class="gp-btn" onclick="openGPhotos('${zoneAbbr}','${head.label}')">
+      <span style="display:flex;gap:3px">
+        <span style="width:7px;height:7px;border-radius:50%;background:#4285F4;display:inline-block"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#EA4335;display:inline-block"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#FBBC05;display:inline-block"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:#34A853;display:inline-block"></span>
+      </span>
+      Open Google Photos — ${zoneAbbr} / ${head.label}
+      <span style="margin-left:auto">↗</span>
+    </button>
+
+    <div style="font-size:12px;font-weight:600;margin-bottom:8px">📅 12-month upload calendar</div>
+    <div class="cal-legend">
+      <div class="leg"><span class="legdot" style="background:#C0DD97"></span> Photo uploaded</div>
+      <div class="leg"><span class="legdot" style="background:#F7C1C1"></span> No upload</div>
+      <div class="leg"><span class="legdot" style="background:#eee"></span> Future date</div>
+    </div>
+    <div class="cal-grid">${calHtml}</div>
+
+    <div class="upload-area">
+      <div class="upload-title">📤 Upload photos / videos</div>
+      <div class="dropzone" id="dropzone-${zoneAbbr}-${head.id}"
+        onclick="document.getElementById('file-${zoneAbbr}-${head.id}').click()"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleDrop(event,'${zoneAbbr}','${head.id}')">
+        ☁️ Click or drag files here<br>
+        <span style="font-size:11px;color:#aaa">JPG / PNG / MP4 · Folder: IR_GoodWork/${zoneAbbr}/${head.id}/2025</span>
+      </div>
+      <input type="file" id="file-${zoneAbbr}-${head.id}" accept="image/*,video/*" multiple
+        onchange="handleUpload(this.files,'${zoneAbbr}','${head.id}')">
+      <div class="upload-row">
+        <select id="month-${zoneAbbr}-${head.id}">
+          <option value="">Month</option>
+          ${MONTHS.map((m,i) => `<option value="${String(i+1).padStart(2,'0')}">${m}</option>`).join('')}
+        </select>
+        <input type="number" id="day-${zoneAbbr}-${head.id}" placeholder="Day" min="1" max="31" style="width:70px">
+      </div>
+      <button class="ubtn" style="background:${head.color}"
+        onclick="submitUpload('${zoneAbbr}','${head.id}')">
+        ↑ Upload to ${zoneAbbr} / ${head.label}
+      </button>
+      <div class="feedback" id="fb-${zoneAbbr}-${head.id}">
+        ✓ <span id="fbmsg-${zoneAbbr}-${head.id}"></span>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = `
+    <div style="background:#fff;border:1px solid #ddd;border-radius:12px;overflow:hidden;margin-bottom:14px">
+      <div style="padding:8px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:8px">
+        <button onclick="setZone('all')" style="display:flex;align-items:center;gap:4px;font-size:12px;color:#666;padding:3px 9px;border-radius:6px;border:1px solid #ddd;background:transparent;cursor:pointer">← All zones</button>
+        <div style="font-size:12px;color:#888;display:flex;align-items:center;gap:5px">
+          All zones › <b style="color:#333">${z.a}</b>
+          ${state.activeHead !== 'all' ? ` › <b style="color:#333">${HEADS.find(h=>h.id===state.activeHead).label}</b>` : ''}
+        </div>
+        <span class="tag ${statusTagClass(s)}" style="margin-left:auto">${statusLabel(s)}</span>
+      </div>
+      ${headTabsHtml}
+      <div style="padding:14px 16px">
+        ${statsHtml}
+        ${bodyHtml}
+      </div>
+    </div>`;
+}
+
+// ─────────────────────────────────────────
+// UPLOAD HANDLERS
+// ─────────────────────────────────────────
+let pendingFiles = {};
+
+function handleDrop(e, zone, head) {
+  e.preventDefault();
+  document.getElementById(`dropzone-${zone}-${head}`).classList.remove('drag');
+  pendingFiles[`${zone}_${head}`] = e.dataTransfer.files;
+}
+
+function handleUpload(files, zone, head) {
+  pendingFiles[`${zone}_${head}`] = files;
+}
+
+async function submitUpload(zone, head) {
+  const monthEl = document.getElementById(`month-${zone}-${head}`);
+  const dayEl   = document.getElementById(`day-${zone}-${head}`);
+  const fbEl    = document.getElementById(`fb-${zone}-${head}`);
+  const msgEl   = document.getElementById(`fbmsg-${zone}-${head}`);
+  const month   = monthEl?.value;
+  const day     = String(parseInt(dayEl?.value || 1)).padStart(2, '0');
+
+  if (!month) { alert('Please select a month'); return; }
+
+  const dateStr = `2025-${month}-${day}`;
+  const files   = pendingFiles[`${zone}_${head}`];
+  const result  = await uploadToBackend(zone, head, dateStr, files);
+
+  if (result.success !== false) {
+    msgEl.textContent = `${files?.length || 1} file(s) saved to ${zone}/${head}/${dateStr} — synced`;
+    fbEl.classList.add('show');
+    setTimeout(() => fbEl.classList.remove('show'), 5000);
+    pendingFiles[`${zone}_${head}`] = null;
+    // Re-render to update calendar
+    renderZonePanel(zone);
+    renderStats();
+  }
+}
+
+function openGPhotos(zone, head) {
+  window.open(`${CONFIG.GPHOTOS_BASE}${encodeURIComponent('IR ' + zone + ' ' + head)}`, '_blank');
+}
+
+// ─────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────
+function setZone(za) {
+  state.activeZone = za;
+  state.activeHead = 'all';
+  renderZoneTabs();
+  renderStats();
+  if (za === 'all') renderAllZones();
+  else renderZonePanel(za);
+  if (za !== 'all') {
+    const t = document.getElementById('zone-tabbar').querySelector('.ztab.active');
+    if (t) t.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+  }
+}
+
+function setHead(hid) {
+  state.activeHead = hid;
+  renderZonePanel(state.activeZone);
+}
+
+// ─────────────────────────────────────────
+// INIT & AUTO-REFRESH
+// ─────────────────────────────────────────
+async function init() {
+  document.getElementById('nav-date').textContent =
+    CONFIG.TODAY.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  await fetchFromBackend();
+  renderZoneTabs();
+  renderStats();
+  renderAllZones();
+  setInterval(async () => {
+    await fetchFromBackend();
+    renderStats();
+    if (state.activeZone === 'all') renderAllZones();
+    else renderZonePanel(state.activeZone);
+  }, CONFIG.REFRESH_INTERVAL);
+}
+
+init();
+</script>
+</body>
+</html>
